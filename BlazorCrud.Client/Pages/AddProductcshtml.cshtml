@@ -1,0 +1,63 @@
+﻿@using BlazorCrud.Shared
+@page "/addproduct"
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+
+<h1>Add Product</h1>
+
+<div class="row jumbotron-fluid">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label for="Name" class="control-label">Name</label>
+            <input for="Name" bind="@prod.Name" class="form-control" placeholder="Enter the product Name" />
+        </div>
+        <div class="form-group">
+            <label for="Status" class="custom-control-label">Name</label>
+            <select for="Status" class="form-control" bind="@prod.Status">
+                <option disabled hidden selected value="">--Select the status of the product--</option>
+                <option value="InStock">In Stock</option>
+                <option value="OutOfStock">Out of Stock</option>
+            </select>
+        </div>
+        <div class="form-group">
+
+            <label for="Price" class="custom-control-label">Price</label>
+            <input type="number" for="Price" bind="@prod.Price" class="form-control" placeholder="Enter the product Name" />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" onclick="@(async () => await CreateProduct())">Save</button>
+            <button type="submit" class="btn btn-warning" onclick="@clear">Clear the form</button>
+        </div>
+    </div>
+</div>
+
+@if (message != "")
+{
+    <div class="bg-success p-4">
+        <h3>@message</h3>
+    </div>
+}
+
+
+@functions  {
+    Product prod = new Product();
+    string message = "";
+    protected async Task CreateProduct()
+    {
+        await Http.SendJsonAsync(HttpMethod.Post, "/api/Product/Create", prod);
+        RedirectToIndex();
+    }
+
+    void RedirectToIndex()
+    {
+        UriHelper.NavigateTo("/fetchproducts");
+    }
+
+    void clear()
+    {
+        prod.Name = "";
+        prod.Price = 0;
+        prod.Status = "";
+    }
+
+}

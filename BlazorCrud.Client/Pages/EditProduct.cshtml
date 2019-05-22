@@ -1,0 +1,63 @@
+﻿@using BlazorCrud.Shared
+@page "/editproduct/{Id}"
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+
+<div class="row jumbotron-fluid">
+    <div class="col-md-12">
+        <div class="form-group">
+            <label for="Name" class="control-label">Name</label>
+            <input for="Name" bind="@prod.Name" class="form-control" placeholder="Enter the product Name" />
+        </div>
+        <div class="form-group">
+            <label for="Status" class="custom-control-label">Name</label>
+            <select for="Status" class="form-control" bind="@prod.Status">
+                <option disabled hidden selected value="">--Select the status of the product--</option>
+                <option value="InStock">In Stock</option>
+                <option value="OutOfStock">Out of Stock</option>
+            </select>
+        </div>
+        <div class="form-group">
+
+            <label for="Price" class="custom-control-label">Price</label>
+            <input type="number" for="Price" bind="@prod.Price" class="form-control" placeholder="Enter the product Name" />
+        </div>
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" onclick="@(async () => await UpdateProduct())">Save</button>
+            <button type="submit" class="btn btn-warning" onclick="@clear">Clear the form</button>
+        </div>
+    </div>
+</div>
+
+
+@functions {
+    [Parameter]
+    string Id { get; set; }
+
+    Product prod = new Product();
+
+    protected override async Task OnInitAsync()
+    {
+        prod = await Http.GetJsonAsync<Product>($"/api/Product/Details/{Convert.ToInt32(Id)}");
+    }
+
+    protected async Task UpdateProduct()
+    {
+        await Http.SendJsonAsync(HttpMethod.Put, "api/Product/Edit", prod);
+        RedirectTo();
+    }
+
+    void RedirectTo()
+    {
+        UriHelper.NavigateTo("/fetchproducts");
+    }
+
+    void clear()
+    {
+        prod.Name = "";
+        prod.Price = 0;
+        prod.Status = "";
+    }
+
+
+}

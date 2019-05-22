@@ -1,0 +1,54 @@
+﻿@using BlazorCrud.Shared
+@page "/fetchproducts"
+@inject HttpClient Http
+@inject Microsoft.AspNetCore.Blazor.Services.IUriHelper UriHelper
+<h1>All Products</h1>
+
+<a href="addproduct">Add Product</a>
+
+@if (products == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Edit</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <td>@product.Name</td>
+                    <td>@product.Status</td>
+                    <td>@product.Price</td>
+                    <td><a href="/editproduct/@product.Id">Edit</a></td>
+                    <td><button onclick="@(async () => await DeleteProduct(product.Id))">Delete</button></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+
+@functions {
+    Product[] products;
+    protected override async Task OnInitAsync()
+    {
+        products = await Http.GetJsonAsync<Product[]>("/api/Product/Index");
+    }
+
+    protected async Task DeleteProduct(int id)
+    {
+        await Http.DeleteAsync($"api/Product/Delete/{id}");
+        UriHelper.NavigateTo("/");
+    }
+}
+
